@@ -1,0 +1,37 @@
+-- This query returns the Top 5 cities that generated the highest total waste (Weight Kg)
+SELECT
+    TOPCOUNT(
+        [Dim Location].[City Name].Members,
+        5,
+        [Measures].[weight kg]
+    ) ON ROWS,
+    { [Measures].[weight kg] } ON COLUMNS
+FROM [Waste Management DW]
+
+-- Total Trip Cost per Truck (Fuel + Labor + Disposal)
+WITH 
+    MEMBER [Measures].[Total Trip Cost] AS 
+        [Measures].[fuel used liters] 
+        + [Measures].[labor cost] 
+        + [Measures].[disposal cost]
+SELECT
+    { [Measures].[Total Trip Cost] } ON COLUMNS,
+    [Dim Truck].[Truck Code].Members ON ROWS
+FROM [Waste Management DW]
+
+
+-- This query shows total Weight Kg broken down by City and whether the waste is Recyclable or Not
+SELECT 
+    [Measures].[Weight Kg] ON COLUMNS,
+    NON EMPTY 
+    ([Dim Location].[City Name].[City Name].MEMBERS *
+     [Dim Waste Type].[Is Recyclable].[Is Recyclable].MEMBERS)
+ON ROWS
+FROM [Waste Management DW]
+
+-- This query shows the total waste collected (Weight Kg) by each driver
+-- Used to evaluate driver performance
+SELECT 
+    [Measures].[Weight Kg] ON COLUMNS,
+    [Dim Driver].[Full Name].[Full Name].MEMBERS ON ROWS
+FROM [Waste Management DW]
